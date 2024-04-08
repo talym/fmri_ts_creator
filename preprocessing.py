@@ -13,7 +13,7 @@ from parameters import PrepParameters
 from preprocessing_tools import PrepTools 
 from visualizer import Visualizer as vs
 
-test = 'PTSD'
+test = 'KET_INJ'
 atlas = 'Schaefer2018_7Networks'
 project_root = r'E:\ptsd_ketamine'
 
