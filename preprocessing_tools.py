@@ -67,23 +67,7 @@ class PrepTools(object):
         """img_sliced_path = ''.join(nifti.split('.')[0])+'_r.nii'
         nib.nifti1.save(img_sliced, img_sliced_path)"""
         return img_sliced   
-    def GetReceptorZScoreData(receptor_map, scan) :
-        receptor_img = nib.load(receptor_map)
-        receptor_img_res = resample_to_img(receptor_img, scan)        
-        receptor_img_res_data = receptor_img_res.get_fdata()        
-        min_ = np.min(receptor_img_res_data[receptor_img_res_data!=0])
-        max_ = np.max(receptor_img_res_data[receptor_img_res_data!=0])
-        receptor_img_res_data[receptor_img_res_data!=0] = (receptor_img_res_data[receptor_img_res_data!=0] - min_) / (max_-min_)
-               
-        return receptor_img_res_data
-        
-    def WeightByReceptor(scan, receptor_map):
-        print('WeightByReceptor', receptor_map)
-        scan_data = scan.get_fdata()                 
-        receptor_img_res_data= PrepTools.GetReceptorZScoreData(receptor_map, scan)         
-        scan_NMDA_wg_data = scan_data * receptor_img_res_data[..., np.newaxis]
-        scan_NMDA_wg_img = nib.Nifti1Image (scan_NMDA_wg_data, scan.affine)        
-        return scan_NMDA_wg_img
+
     def Despyke(nifti):
         despike = afni.Despike()
         despike.inputs.in_file = nifti
@@ -95,6 +79,8 @@ class PrepTools(object):
                                         memory='nilearn_cache', verbose=0, 
                                         smoothing_fwhm = smoothing_fwhm, detrend = detrend,
                                         low_pass=low_pass, high_pass=high_pass, t_r=t_r)
+        print(f'standardize: {standardize}, smoothing_fwhm: {smoothing_fwhm}, detrend: {detrend}, '
+              f'low_pass: {low_pass}, high_pass: {high_pass}, t_r: {t_r}')
 
         time_series = masker.fit_transform(nifti_img, confounds = confounds) 
         return time_series
@@ -105,66 +91,53 @@ class PrepTools(object):
                        'low_pass' : prep_params.LOW_PASS, 'high_pass' : prep_params.HIGH_PASS,  't_r' : prep_params.T_R}, fp)  # save the dataset
 
         #get all nifti and counfound inputs - assume to be fmriprep output
-        sets_of_files = DataMng.GetFmriInput(mri_sets_dir = prep_params.DATA_ROOT, pysio_dir_set = prep_params.PHYSIO_PATH, level = prep_params.LEVEL, input_formant = 
-                                             {'nifti_ext':prep_params.NIFTI_EXT, 'confound_ext':prep_params.CONF_EXT, 'physio_ext': prep_params.PHYSIO_EXT,
-                                              'NIFTI_exclude': prep_params.NIFTI_NAME_EXCLUDE, 'NIFTI_include': prep_params.NIFTI_NAME_INCLUDE,
-                                              'confound_exclude': prep_params.CONF_NAME_EXCLUDE, 'confound_include': prep_params.CONF_NAME_INCLUDE ,
+        sets_of_files = DataMng.GetFmriInput(mri_sets_dir = prep_params.data_root, level = prep_params.LEVEL,
+                                             input_formant =
+                                             {'nifti_ext':prep_params.NIFTI_EXT, 'confound_ext':prep_params.CONF_EXT,
+                                              'NIFTI_exclude': prep_params.NIFTI_NAME_EXCLUDE,
+                                              'NIFTI_include': prep_params.NIFTI_NAME_INCLUDE,
+                                              'confound_exclude': prep_params.CONF_NAME_EXCLUDE,
+                                              'confound_include': prep_params.CONF_NAME_INCLUDE,
                                               'matchig_teplate':prep_params.MATCHING_TEMPLATE,
-                                              'physio_exclude': prep_params.PHYSIO_NAME_EXCLUDE, 'physio_include': prep_params.PHYSIO_NAME_INCLUDE})
+                                              })
         # save the dataset
         with open(prep_params.LOG_FILE, "w") as fp:
             json.dump(sets_of_files, fp)  
             
         #get atlas and it's labels 
-        if prep_params.AICHA: labels = genfromtxt(prep_params.ATLAS_LABELS_PATH, dtype=str, delimiter=" ")[:,1]
-        elif prep_params.Schaefer2018 or  prep_params.Lausanne: labels = genfromtxt(prep_params.ATLAS_LABELS_PATH, dtype=str, delimiter=" ")
+        if prep_params.atlas == 'AICHA':
+            labels = genfromtxt(prep_params.ATLAS_LABELS_PATH, dtype=str, delimiter=" ")[:,1]
+        elif prep_params.atlas == 'Schaefer2018_7Networks' or  prep_params.Lausanne == 'Lausanne':
+            labels = genfromtxt(prep_params.ATLAS_LABELS_PATH, dtype=str, delimiter=" ")
         else: print("Unsupported Atlas")
         atlas_img = image.load_img(prep_params.ATLAS_IMG_PATH)  
         return sets_of_files, labels, atlas_img
-    def handleConf(set_of_files, prep_params, receptor):
-        conf_log = os.path.join(prep_params.LOG, receptor + '-' +set_of_files['CONFOUND'].split('\\')[-1].split('.')[0]+'.txt')
+    def handleConf(set_of_files, prep_params):
+        conf_log = os.path.join(prep_params.LOG, set_of_files['CONFOUND'].split('\\')[-1].split('.')[0]+'.txt')
         if set_of_files['CONFOUND'] == '':
             print('++++++++++++++Empty ', set_of_files['CONFOUND'])
             return None, True
-        if prep_params.INCLUDE_PHYSIO:
-            if set_of_files['PHYSIO'] =='':
-                print('**************Empty ', set_of_files['PHYSIO'])
-                return None, True
-            print('Physio')
-            conf_, bad_vol = PrepTools.Confound(full_confound_file = set_of_files['CONFOUND'], confounds = prep_params.CONFOUNDS, 
-                                       num_vol_to_remove = prep_params.NUM_VOL_TO_REMOVE, prep_params = prep_params, pysio_file = set_of_files['PHYSIO'])
-        else:
-            #print('No physio')
-            conf_, bad_vol = PrepTools.Confound(full_confound_file = set_of_files['CONFOUND'], confounds = prep_params.CONFOUNDS, 
+        conf_, bad_vol = PrepTools.Confound(full_confound_file = set_of_files['CONFOUND'], confounds = prep_params.CONFOUNDS,
                                        num_vol_to_remove = prep_params.NUM_VOL_TO_REMOVE, prep_params = prep_params, pysio_file = '')
         with open(conf_log, "w") as fp:
             for conf in conf_.columns.values:
                 fp.write("%s\n" % conf)
         return conf_, False
-    def GetTR(nifti_file, GUY_DATA):
-        if GUY_DATA:
-            file = nifti_file.split('\\')[-1]
-            if 'sub-C' in file or 'sub-G' in file:
-                TR = 3
-            elif 'sub-D' in file or 'sub-E' in file or 'sub-F' in file:
-                TR = 2.5
-            else:
-                print('Error !!!!!!!!!!!!!!! Unknown TR', nifti_file)
+    def GetTR(nifti_file):
+        nifti_file_split = nifti_file.split('\\')
+        nifti_file = nifti_file_split[-1]
+        start_index = nifti_file.find('space')
+        json_file_path = os.path.join(os.path.join(*nifti_file_split[:len(nifti_file_split)-1]), nifti_file[:start_index] + '*.json')
+        json_files = glob.glob(json_file_path)
+        if len(json_files) !=1:
+            len_ = len(json_files)
+            print('Number of jsons is: {len_} ', json_file_path)
+            TR = None
         else:
-            nifti_file_split = nifti_file.split('\\')
-            nifti_file = nifti_file_split[-1]
-            start_index = nifti_file.find('space')
-            json_file_path = os.path.join(os.path.join(*nifti_file_split[:len(nifti_file_split)-1]), nifti_file[:start_index] + '*.json')
-            json_files = glob.glob(json_file_path)
-            if len(json_files) !=1:
-                len_ = len(json_files)
-                print('Number of jsons is: {len_} ', json_file_path)
-                TR = None
-            else:
-                json_file_path = json_files[0]
-                with open(json_file_path, 'r') as file:
-                    # Parse the JSON data
-                    data = json.load(file)
-                    TR = data['RepetitionTime']
+            json_file_path = json_files[0]
+            with open(json_file_path, 'r') as file:
+                # Parse the JSON data
+                data = json.load(file)
+                TR = data['RepetitionTime']
         return TR
         

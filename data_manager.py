@@ -67,9 +67,8 @@ class DataMng(object):
 
             list_of_files.append(files)
         return list_of_files 
-    def GetFmriInput(mri_sets_dir, pysio_dir_set, level, input_formant):
+    def GetFmriInput(mri_sets_dir, level, input_formant):
         list_of_files_all = DataMng.GetListOfFiles(mri_sets_dir, [input_formant['nifti_ext'], input_formant['confound_ext']], level)
-        list_of_physio = DataMng.GetListOfFiles(pysio_dir_set, [input_formant['physio_ext']], 0)
         sets_of_files = []
         for list_of_files in list_of_files_all:
             #get NIFTI
@@ -87,8 +86,6 @@ class DataMng(object):
                 sets_of_files_i = DataMng.match_nifti_tsv(nifti_files, confound_files, input_formant['matchig_teplate'])
                 for set_of_files in sets_of_files_i:
                     sets_of_files.append({'NIFTI':set_of_files['NIFTI'], 'CONFOUND': set_of_files['CONFOUND']})
-        sets_of_files = DataMng.match_pysio(sets_of_files, list_of_physio[0][input_formant['physio_ext']])
-        
         return sets_of_files
     def match_pysio(sets_of_files, list_of_physio):
         for index, set_of_files in enumerate(sets_of_files):
