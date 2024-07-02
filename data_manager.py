@@ -8,7 +8,7 @@ import os
 import glob
 
 class DataMng(object):
-    def match_nifti_tsv(nifti_file_list, confound_file_list, matchig_teplate):
+    def match_nifti_tsv(nifti_file_list, confound_file_list, matchig_teplate, events = '', event_id = '', event_ending = ''):
         sets_of_files = []
         for nifti_file in nifti_file_list:
             substring = nifti_file.split('\\')[-1]
@@ -21,7 +21,15 @@ class DataMng(object):
                     if len(res)>0:
                         confound_file = res[0]
                         if len(res) >1: print(f"substring {substring} len(res) {len(res)} counfound files for {nifti_file}")
-            sets_of_files.append({'NIFTI':nifti_file, 'CONFOUND': confound_file})
+            # in events link is not empty, get the assosiated events file
+            event_file = ''
+            if len(events) > 0:
+                nifti_file_name = nifti_file.split('\\')[-1]
+                start_index = nifti_file_name.find(event_id)
+                if start_index != -1:
+                    end_index = start_index + len(event_id)
+                    event_file = os.path.join(events, nifti_file_name[:end_index] + event_ending)
+            sets_of_files.append({'NIFTI':nifti_file, 'CONFOUND': confound_file, 'EVENTS': event_file})
         return sets_of_files
     def check_file (file, exclude_list, include_list):
         for exclude in exclude_list:
@@ -67,7 +75,7 @@ class DataMng(object):
 
             list_of_files.append(files)
         return list_of_files 
-    def GetFmriInput(mri_sets_dir, level, input_formant):
+    def GetFmriInput(mri_sets_dir, level, input_formant, events, event_id, event_ending):
         list_of_files_all = DataMng.GetListOfFiles(mri_sets_dir, [input_formant['nifti_ext'], input_formant['confound_ext']], level)
         sets_of_files = []
         for list_of_files in list_of_files_all:
@@ -81,9 +89,11 @@ class DataMng(object):
                                                             input_formant['confound_exclude'],
                                                             input_formant['confound_include'])
             if level == 0:
-                sets_of_files = DataMng.match_nifti_tsv(nifti_files, confound_files, input_formant['matchig_teplate'])
+                sets_of_files = DataMng.match_nifti_tsv(nifti_files, confound_files, input_formant['matchig_teplate'],
+                                                        events, event_id, event_ending)
             else:
-                sets_of_files_i = DataMng.match_nifti_tsv(nifti_files, confound_files, input_formant['matchig_teplate'])
+                sets_of_files_i = DataMng.match_nifti_tsv(nifti_files, confound_files, input_formant['matchig_teplate'],
+                                                          events, event_id, event_ending)
                 for set_of_files in sets_of_files_i:
                     sets_of_files.append({'NIFTI':set_of_files['NIFTI'], 'CONFOUND': set_of_files['CONFOUND']})
         return sets_of_files

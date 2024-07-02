@@ -84,7 +84,7 @@ class PrepTools(object):
 
         time_series = masker.fit_transform(nifti_img, confounds = confounds) 
         return time_series
-    def LoadData(prep_params):
+    def LoadData(prep_params, events = '', event_id = '', event_ending = ''):
         #save the preprocessing parameters 
         with open(prep_params.LOG_PARAM, "w") as fp:
             json.dump({'standardize': prep_params.STANDARTIZE, 'smoothing_fwhm': prep_params.SMOOTHING_FWHM, 'detrend': prep_params.DETREND, 
@@ -99,7 +99,9 @@ class PrepTools(object):
                                               'confound_exclude': prep_params.CONF_NAME_EXCLUDE,
                                               'confound_include': prep_params.CONF_NAME_INCLUDE,
                                               'matchig_teplate':prep_params.MATCHING_TEMPLATE,
-                                              })
+                                              }, events = events, event_id = event_id, event_ending = event_ending
+                                             )
+
         # save the dataset
         with open(prep_params.LOG_FILE, "w") as fp:
             json.dump(sets_of_files, fp)  

@@ -5,12 +5,9 @@ Created on Thu Aug 24 18:17:09 2023
 @author: marko
 """
 import os
-
 import pandas as pd
-
 from parameters import PrepParameters
-
-from preprocessing_tools import PrepTools 
+from preprocessing_tools import PrepTools
 from visualizer import Visualizer as vs
 
 test = 'KET_INJ'

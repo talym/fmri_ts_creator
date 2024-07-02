@@ -21,7 +21,7 @@ ATLASES = {
             'Lausanne': {'img': 'atl-Cammoun2012_space-MNI152NLin2009aSym_res-250_deterministic.nii.gz',
                          'labels': 'Lausanne_463.txt', 'yeo': 'Lausanne_463.txt'},
         }
-DEBUG = False
+DEBUG = True
 NUM_VOL_TO_REMOVE = 3
 
 # Preprocessing parameters
@@ -59,6 +59,7 @@ class PrepParameters(object):
 
         #fMRI Data
         self.data_root = os.path.join(self.project_root, 'fmri_scans')
+        self.NUM_VOL_TO_REMOVE = NUM_VOL_TO_REMOVE
         if data == 'PTSD':
             self.changable_TR = True
             self.T_R = None
@@ -67,6 +68,11 @@ class PrepParameters(object):
             self.changable_TR = False
             self.T_R = 2.5
             self.NIFTI_EXT = 'gz'
+        elif data == 'KET_PAIN':
+            self.changable_TR = False
+            self.T_R = 2.5
+            self.NIFTI_EXT = 'gz'
+            self.NUM_VOL_TO_REMOVE = 0
         else:
             print('Error test: unsupported data', data, atlas)
         self.unified_param()
@@ -94,7 +100,6 @@ class PrepParameters(object):
         self.LOG_PARAM = os.path.join(self.LOG, 'log_param.txt')
 
         self.INCLUDE_MOTION_CONF = True
-        self.NUM_VOL_TO_REMOVE = NUM_VOL_TO_REMOVE
         self.LOW_PASS = LOW_PASS
         self.HIGH_PASS = HIGH_PASS
         self.STANDARTIZE = STANDARTIZE
