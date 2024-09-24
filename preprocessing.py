@@ -10,9 +10,10 @@ from parameters import PrepParameters
 from preprocessing_tools import PrepTools
 from visualizer import Visualizer as vs
 
-test = 'KET_INJ'
+test = 'JOY'
 atlas = 'Schaefer2018_7Networks'
-project_root = r'E:\ptsd_ketamine'
+#project_root = r'E:\ptsd_ketamine'
+project_root = r'E:\joy'
 
 if __name__ == '__main__':
     prep_params = PrepParameters(data = test, atlas = atlas,project_root = project_root)
@@ -20,7 +21,8 @@ if __name__ == '__main__':
     DEBUG, RESULTS, changable_TR = prep_params.GetGeneralParam()
     
     sets_of_files, labels, atlas_img = PrepTools.LoadData(prep_params)
-    
+    if test == 'JOY_add':
+        st_atlas_img = atlas_img
     for set_of_files_i in range(len(sets_of_files)):
         set_of_files = sets_of_files[set_of_files_i]
         #Step 1 - remove first NUM_VOL_TO_REMOVE volumes 
@@ -30,7 +32,10 @@ if __name__ == '__main__':
         if continue_: continue
         if changable_TR: T_R = PrepTools.GetTR(set_of_files['NIFTI'])
         if T_R == None: continue
-                
+
+        if test == 'JOY_add':
+            atlas_img = PrepTools.AddRois(st_atlas_img)
+
         time_series = PrepTools.CreatTimeSeries(nifti_img = nifti_sliced, atlas = atlas_img, labels = labels,
                                                 standardize = STANDARTIZE, smoothing_fwhm = SMOOTHING_FWHM, detrend = DETREND,
                                                 low_pass = LOW_PASS, high_pass = HIGH_PASS,  t_r = T_R,

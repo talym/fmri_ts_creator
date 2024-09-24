@@ -142,4 +142,15 @@ class PrepTools(object):
                 data = json.load(file)
                 TR = data['RepetitionTime']
         return TR
+    def AddRois(st_atlas_img):
+        img = nib.load(st_atlas_img)
+        data = img.get_fdata(img)
+        vts_roi = max(data)+1
+        l_na_roi = vts_roi+1
+        r_na_roi = l_na_roi + 1
+        #read rois
+        #add to data
+        return nib.Nifti1Image(data, img.affine)
+
+
         

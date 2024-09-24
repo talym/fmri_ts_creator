@@ -21,7 +21,7 @@ ATLASES = {
             'Lausanne': {'img': 'atl-Cammoun2012_space-MNI152NLin2009aSym_res-250_deterministic.nii.gz',
                          'labels': 'Lausanne_463.txt', 'yeo': 'Lausanne_463.txt'},
         }
-DEBUG = True
+DEBUG = False
 NUM_VOL_TO_REMOVE = 3
 
 # Preprocessing parameters
@@ -71,6 +71,11 @@ class PrepParameters(object):
         elif data == 'KET_PAIN':
             self.changable_TR = False
             self.T_R = 2.5
+            self.NIFTI_EXT = 'gz'
+            self.NUM_VOL_TO_REMOVE = 0
+        elif data == 'JOY':
+            self.changable_TR = False
+            self.T_R = 2
             self.NIFTI_EXT = 'gz'
             self.NUM_VOL_TO_REMOVE = 0
         else:
