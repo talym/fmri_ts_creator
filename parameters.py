@@ -49,6 +49,8 @@ class PrepParameters(object):
         return self.DEBUG, self.RESULTS, self.changable_TR
 
     def set_case_specific_params(self, data, atlas):
+        self.unified_param()
+
         #Atlas
         if atlas not in ATLASES.keys():
             print('Error test: unsupported atlas', data, atlas)
@@ -78,10 +80,18 @@ class PrepParameters(object):
             self.T_R = 2
             self.NIFTI_EXT = 'gz'
             self.NUM_VOL_TO_REMOVE = 0
+        elif data == 'REST_RAMA':
+            self.changable_TR = False
+            self.T_R = 2
+            self.NIFTI_EXT = 'gz'
+            self.LEVEL = 2
+            self.data_root = self.project_root
+            self.NIFTI_NAME_INCLUDE = ['rest', 'MNI152NLin2009cAsym_res-2_desc-preproc_bold.nii', 'run']
+            self.CONF_NAME_INCLUDE = ['rest', 'confounds', 'run']
+
         else:
             print('Error test: unsupported data', data, atlas)
-        self.unified_param()
-    
+
 
     def unified_param(self):
         self.RESULTS = os.path.join(self.project_root, 'Results_' + self.atlas)

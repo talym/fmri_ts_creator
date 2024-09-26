@@ -12,15 +12,18 @@ import pandas as pd
 from parameters import PrepParameters
 
 
-test = 'JOY'
+test = 'REST_RAMA'
 if test == 'PAIN':
     logs_path = r'E:\ketamine\pain\Results_Schaefer2018\log'
 elif test == 'JOY':
     logs_path = r'E:\joy\log'
+elif test =='REST_RAMA':
+     logs_path = r'\\fmri-maayan\PTSD_IPMP\Subjects\ActiveSubjects_Return\fmriprep\log'
+
 
 atlas = 'Schaefer2018_7Networks'
 #project_root = r'E:\ptsd_ketamine'
-project_root = r'E:\joy'
+project_root = r'\\fmri-maayan\PTSD_IPMP\Subjects\ActiveSubjects_Return\fmriprep'
 TSV = True
 
 if __name__ == '__main__':

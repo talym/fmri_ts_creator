@@ -10,10 +10,15 @@ from parameters import PrepParameters
 from preprocessing_tools import PrepTools
 from visualizer import Visualizer as vs
 
-test = 'JOY'
+#test = 'JOY'
+#project_root = r'E:\joy'
+#test = 'KET_INJ'
+test = 'REST_RAMA'
+
 atlas = 'Schaefer2018_7Networks'
 #project_root = r'E:\ptsd_ketamine'
-project_root = r'E:\joy'
+project_root = r'\\fmri-maayan\PTSD_IPMP\Subjects\ActiveSubjects_Return\fmriprep'
+
 
 if __name__ == '__main__':
     prep_params = PrepParameters(data = test, atlas = atlas,project_root = project_root)

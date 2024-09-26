@@ -9,25 +9,23 @@ import shutil
 
 if __name__ == '__main__':
 
-    scans = r'E:\joy\fmri_scans'
+    scans = r'\\fmri-maayan\PTSD_IPMP\Subjects\ActiveSubjects_Return\fmriprep\Results_Schaefer2018_7Networks'
     bad_scans_path = r'E:\joy\bad scans'
     if not os.path.exists(bad_scans_path):
         # Create the directory
         os.makedirs(bad_scans_path)
     bad_files = [
-        'sub-1151_ses-4_task-fmrirest_desc-confounds_regressors.txt',
-        'sub-1197_ses-4_task-fmrirest_desc-confounds_regressors.txt',
-        'sub-1177_ses-1_task-fmrirest_run-1_desc-confounds_regressors.txt',
-        'sub-1308_task-rest_run-1_desc-confounds_timeseries.txt',
-        'sub-1151_ses-1_task-fmrirest_desc-confounds_regressors.txt',
-        'sub-1161_ses-1_task-fmrirest_desc-confounds_regressors.txt',
-        'sub-1211_ses-1_task-fmrirest_desc-confounds_regressors.txt'
+        'sub-1619_task-rest_run-1_desc-confounds_timeseries.txt',
+        'sub-1619_task-rest_run-1_desc-confounds_timeseries.txt',
+        'sub-2124_task-rest_run-1_desc-confounds_timeseries.txt',
+        'sub-2124_task-rest_run-1_desc-confounds_timeseries.txt',
+        'sub-939_task-rest_run-1_desc-confounds_timeseries.txt',
+        'sub-939_task-rest_run-1_desc-confounds_timeseries.txt'
     ]
     str_end=20
     str_start = 4
 
 
-    
 if __name__ == '__main__':
     if not os.path.exists(bad_scans_path):
         os.makedirs(bad_scans_path)
