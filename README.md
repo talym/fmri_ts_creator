@@ -1,3 +1,4 @@
+based on https://github.com/ejcorn/brain_states
 preprocessing.py - main file to start preprocessing
 
 parameters.py - used by preprocessing.py to set parameters 
